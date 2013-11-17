@@ -8,13 +8,22 @@ class HttpClient {
 
 	protected $conn;
 
+	/**
+	 * @var string
+	 */
 	protected $cookieFile;
 
+	/**
+	 * @var string cookie jar directory
+	 */
 	public function __construct( $cookieJar ) {
 		$this->conn = curl_init();
 		$this->init( $cookieJar );
 	}
 
+	/**
+	 * @var string cookie jar directory
+	 */
 	protected function init( $cookieJar ) {
 		$cookieFile = $this->makeCookieFile();
 
@@ -24,11 +33,16 @@ class HttpClient {
 		curl_setopt( $this->conn, CURLOPT_SSL_VERIFYPEER, false );
 	}
 
-	protected function makeCookieFile() {
+	private function makeCookieFile() {
 		return 'cookie.' . dechex( rand( 0, 99999999 ) ) . '.dat';
 	}
 
-	public function makeQueryString( $params ) {
+	/**
+	 * @param array $params
+	 *
+	 * @return string
+	 */
+	public function makeQueryString( array $params ) {
 		$queryString = '';
 
 		foreach( $params as $key => $value ) {
@@ -39,6 +53,12 @@ class HttpClient {
 		return $queryString;
 	}
 
+	/**
+	 * @param string $url
+	 * @param array $params
+	 *
+	 * @throws InvalidArgumentException
+	 */
 	public function get( $url, $params = null ) {
 		if ( !is_string( $url ) ) {
 			throw new InvalidArgumentException( '$url must be a string' );
@@ -57,6 +77,12 @@ class HttpClient {
 		return $response;
 	}
 
+	/**
+	 * @param string $url
+	 * @param array $params
+	 *
+	 * @throws InvalidArgumentException
+	 */
 	public function post( $url, array $params ) {
 		if ( !is_string( $url ) ) {
 			throw new InvalidArgumentException( '$url must be a string' );
