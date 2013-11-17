@@ -1,0 +1,14 @@
+{
+	"name": "wikiclient",
+	"type": "library",
+	"description": "MediaWiki api client",
+	"keywords": [
+		"mediawiki",
+		"api"
+	],
+	"autoload": {
+		"psr-0": {
+			"WikiClient\\": "src"
+		}
+	}
+}
