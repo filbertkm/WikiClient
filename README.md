@@ -1,7 +1,7 @@
 Example
 =======
 
----
+```
 require_once __DIR__ . '/vendor/autoload.php';
 
 $client = new \WikiClient\HttpClient( '/tmp' );
@@ -10,4 +10,4 @@ $data = $client->get( 'https://www.wikidata.org/w/api.php', array(
     'ids' => 'Q60',
     'format' => 'json'
 ) );
----
+```
