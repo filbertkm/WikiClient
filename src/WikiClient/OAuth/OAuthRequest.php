@@ -1,6 +1,6 @@
 <?php
 
-namespace WikiClient;
+namespace WikiClient\OAuth;
 
 class OAuthRequest {
 
