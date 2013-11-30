@@ -9,11 +9,6 @@ class HttpClient {
 	protected $conn;
 
 	/**
-	 * @var string
-	 */
-	protected $cookieFile;
-
-	/**
 	 * @var string cookie jar directory
 	 */
 	public function __construct( $cookieJar ) {
