@@ -6,12 +6,21 @@ use InvalidArgumentException;
 
 class HttpClient {
 
+	protected $baseUrl;
+
 	protected $conn;
 
 	/**
-	 * @var string cookie jar directory
+	 * @param string cookie jar directory
+	 * @param string|null $baseUrl
 	 */
-	public function __construct( $cookieJar ) {
+	public function __construct( $cookieJar, $baseUrl = null ) {
+		if ( $baseUrl !== null || !is_string( $baseUrl ) ) {
+			throw new InvalidArgumentException;
+		}
+
+		$this->baseUrl = $baseUrl;
+
 		$this->conn = curl_init();
 		$this->init( $cookieJar );
 	}
@@ -49,15 +58,13 @@ class HttpClient {
 	}
 
 	/**
-	 * @param string $url
-	 * @param array $params
+	 * @param string|null $url - default is $this->baseUrl
+	 * @param array|null $params
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function get( $url, $params = null ) {
-		if ( !is_string( $url ) ) {
-			throw new InvalidArgumentException( '$url must be a string' );
-		}
+	public function get( $url = null, $params = null ) {
+		$url = $this->resolveUrl( $url );
 
 		if ( is_array( $params ) ) {
 			$url = $url . $this->makeQueryString( $params );
@@ -73,15 +80,13 @@ class HttpClient {
 	}
 
 	/**
-	 * @param string $url
+	 * @param string|null $url - default is $this->baseUrl
 	 * @param array $params
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function post( $url, array $params ) {
-		if ( !is_string( $url ) ) {
-			throw new InvalidArgumentException( '$url must be a string' );
-		}
+	public function post( $url = null, array $params ) {
+		$url = $this->resolveUrl( $url );
 
 		curl_setopt( $this->conn, CURLOPT_URL, $url );
 		curl_setopt( $this->conn, CURLOPT_RETURNTRANSFER, true );
@@ -92,6 +97,24 @@ class HttpClient {
 		$response = curl_exec( $this->conn );
 
 		return $response;
+	}
+
+	/**
+	 * @param string|null $url
+	 *
+	 * @throws InvalidArgumentException
+	 * @return string
+	 */
+	private function resolveUrl( $url = null ) {
+		if ( $url === null && isset( $this->baseUrl ) ) {
+			$url = $this->baseUrl;
+		}
+
+		if ( !$url || !is_string( $url ) ) {
+			throw new InvalidArgumentException( '$url param is invalid' );
+		}
+
+		return $url;
 	}
 
 }
