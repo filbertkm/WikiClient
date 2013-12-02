@@ -55,10 +55,6 @@ class ApiClient {
 			throw new RuntimeException( 'No user is set for the api client' );
 		}
 
-		if ( $this->verbose ) {
-			echo "logging in...\n";
-		}
-
 		$params = $this->buildParams( array(
 			'action' => 'login',
 			'lgname' => $this->user->getUserName(),
@@ -71,16 +67,8 @@ class ApiClient {
 		if ( $result['login']['result'] === 'Success' ) {
 			$this->editToken = $this->getEditToken();
 
-			if ( $this->verbose ) {
-				echo "logged in\n";
-			}
-
 			return true;
 		} elseif ( $result['login']['result'] === 'NeedToken' ) {
-			if ( $this->verbose ) {
-				echo "need token\n";
-			}
-
 			$params['lgtoken'] = $result['login']['token'];
 			$response = $this->http->post( $params );
 
@@ -116,4 +104,11 @@ class ApiClient {
 		return $this->tokens;
 	}
 
+	public function get( $params ) {
+		return $this->http->get( null, $params );
+	}
+
+	public function post( $params ) {
+		return $this->http->post( null, $params );
+	}
 }
