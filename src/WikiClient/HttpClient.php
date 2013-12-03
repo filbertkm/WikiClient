@@ -15,8 +15,8 @@ class HttpClient {
 	 * @param string|null $baseUrl
 	 */
 	public function __construct( $cookieJar, $baseUrl = null ) {
-		if ( $baseUrl !== null || !is_string( $baseUrl ) ) {
-			throw new InvalidArgumentException;
+		if ( !is_string( $baseUrl ) ) {
+			throw new InvalidArgumentException( '$baseUrl is invalid' );
 		}
 
 		$this->baseUrl = $baseUrl;
