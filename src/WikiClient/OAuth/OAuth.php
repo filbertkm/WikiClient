@@ -88,7 +88,9 @@ class OAuth {
 
 		$fields_string = rtrim( $fields_string, '&' );
 
-		return $this->config['oauth']['baseurl'] . '?' . $fields_string;
+		$url = $this->config['oauth']['baseurl'] . '?' . $fields_string;
+
+		return $url;
 	}
 
 	protected function getRequestUrl() {

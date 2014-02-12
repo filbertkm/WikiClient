@@ -18,13 +18,12 @@ class ApiClient {
 	protected $user;
 
 	/**
+	 * @param Wiki $wiki
 	 * @param string $cookiejar
-	 * @param string $baseUrl
-	 * @parma User $user
 	 */
-	public function __construct( $cookiejar, $baseUrl, User $user = null ) {
-		$this->http = new HttpClient( $cookiejar, $baseUrl );
-		$this->user = $user;
+	public function __construct( $wiki, $cookiejar ) {
+		$this->http = new HttpClient( $cookiejar, $wiki->getBaseUrl() );
+		$this->user = $wiki->getUser();
 	}
 
 	/**
