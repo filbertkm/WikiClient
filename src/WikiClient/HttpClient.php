@@ -60,10 +60,11 @@ class HttpClient {
 	/**
 	 * @param string|null $url - default is $this->baseUrl
 	 * @param array|null $params
+	 * @param ? $header
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function get( $url = null, $params = null ) {
+	public function get( $url = null, $params = null, $header = null ) {
 		$url = $this->resolveUrl( $url );
 
 		if ( is_array( $params ) ) {
@@ -74,6 +75,11 @@ class HttpClient {
 		curl_setopt( $this->conn, CURLOPT_HTTPGET, true );
 		curl_setopt( $this->conn, CURLOPT_RETURNTRANSFER, true );
 
+		if ( $header ) {
+			curl_setopt( $ch, CURLOPT_HEADER, 0 );
+			curl_setopt( $ch, CURLOPT_HTTPHEADER, $header );
+		}
+
 		$response = curl_exec( $this->conn );
 
 		return $response;
@@ -82,17 +88,26 @@ class HttpClient {
 	/**
 	 * @param string|null $url - default is $this->baseUrl
 	 * @param array $params
+	 * @param ? $header
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function post( $url = null, array $params ) {
+	public function post( $url = null, array $params, $header = null ) {
 		$url = $this->resolveUrl( $url );
+		$headers = array( 'Expect:' );
 
 		curl_setopt( $this->conn, CURLOPT_URL, $url );
 		curl_setopt( $this->conn, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $this->conn, CURLOPT_POST, true );
 		curl_setopt( $this->conn, CURLOPT_POSTFIELDS, $params );
 		curl_setopt( $this->conn, CURLOPT_HTTPHEADER, array( 'Expect:' ) );
+
+		if ( $header ) {
+			curl_setopt( $ch, CURLOPT_HEADER, 0 );
+			$headers[] = $header;
+		}
+
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
 
 		$response = curl_exec( $this->conn );
 

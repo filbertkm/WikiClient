@@ -1,6 +1,8 @@
 <?php
 
-namespace WikiClient\OAuth;
+use WikiClient\OAuth;
+
+namespace WikiClient\MediaWiki\Wiki;
 
 class OAuthRequest {
 
@@ -10,11 +12,11 @@ class OAuthRequest {
 
 	protected $config;
 
-	public function __construct( $config ) {
+	public function __construct( array $config ) {
 		$this->config = $config;
 	}
 
-	public function doRequest( array $apiParams ) {
+	public function buildParams( array $apiParams ) {
 		$oauthParams = array(
 			'oauth_consumer_key' => $this->config['oauth']['consumerkey'],
 			'oauth_nonce' => $this->generateNonce(),
@@ -24,6 +26,7 @@ class OAuthRequest {
 			'oauth_version' => self::OVERSION
 		);
 
+		$apiParams = $client->buildParams( $apiParams );
 		$params = array_merge( $apiParams, $oauthParams );
 		ksort( $params );
 
@@ -33,8 +36,30 @@ class OAuthRequest {
 			. $this->config['oauth']['usersecret'];
 
 		$params['oauth_signature'] = base64_encode( hash_hmac( 'sha1', $baseString, $hashkey, true ) );
+
+		return $params;
+	}
+
+	public function post( Wiki $wiki, array $apiParams ) {
+		$params = $this->buildParams( $apiParams );
 		$header = array( $this->makeHeader( $params ) );
 
+		$client = new ApiClient( $wiki, '/tmp' );
+		$data = $client->post( $params, $header );
+
+		return $data;
+	}
+
+    public function get( Wiki $wiki, array $apiParams ) {
+        $params = $this->buildParams( $apiParams );
+        $header = array( $this->makeHeader( $params ) );
+
+        $client = new ApiClient( $wiki, '/tmp' );
+        $data = $client->get( $params, $header );
+
+        return $data;
+    }
+/*
 		$url = $this->config['oauth']['apibaseurl']  . '?' . http_build_query( $apiParams );
 
 		$ch = curl_init();
@@ -45,9 +70,7 @@ class OAuthRequest {
 		curl_setopt( $ch, CURLOPT_HTTPHEADER, $header );
 
 		$data = curl_exec( $ch );
-
-		return $data;
-	}
+*/
 
 	protected function generateNonce() {
 		return md5( microtime() . mt_rand() );
