@@ -1,8 +1,8 @@
 <?php
 
-use WikiClient\OAuth;
+namespace WikiClient\OAuth;
 
-namespace WikiClient\MediaWiki\Wiki;
+use WikiClient\MediaWiki\Wiki;
 
 class OAuthRequest {
 
@@ -50,15 +50,15 @@ class OAuthRequest {
 		return $data;
 	}
 
-    public function get( Wiki $wiki, array $apiParams ) {
-        $params = $this->buildParams( $apiParams );
-        $header = array( $this->makeHeader( $params ) );
+	public function get( Wiki $wiki, array $apiParams ) {
+		$params = $this->buildParams( $apiParams );
+		$header = array( $this->makeHeader( $params ) );
 
-        $client = new ApiClient( $wiki, '/tmp' );
-        $data = $client->get( $params, $header );
+		$client = new ApiClient( $wiki, '/tmp' );
+		$data = $client->get( $params, $header );
 
-        return $data;
-    }
+		return $data;
+	}
 /*
 		$url = $this->config['oauth']['apibaseurl']  . '?' . http_build_query( $apiParams );
 
