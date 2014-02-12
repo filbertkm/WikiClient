@@ -103,6 +103,23 @@ class ApiClient {
 		return $this->tokens;
 	}
 
+	public function doEdit( $params ) {
+		$tokens = $this->getTokens();
+
+		$params = $this->buildParams(
+			array_merge(
+				$params,
+				array(
+					'assert' => 'bot',
+					'bot' => 1,
+					'token' => $tokens['edittoken']
+				)
+			)
+		);
+
+		return $this->post( $params );
+	}
+
 	public function get( $params ) {
 		return $this->http->get( null, $params );
 	}
