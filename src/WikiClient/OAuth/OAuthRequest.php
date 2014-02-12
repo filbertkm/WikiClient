@@ -2,6 +2,7 @@
 
 namespace WikiClient\OAuth;
 
+use WikiClient\MediaWiki\ApiClient;
 use WikiClient\MediaWiki\Wiki;
 
 class OAuthRequest {
@@ -23,10 +24,10 @@ class OAuthRequest {
 			'oauth_signature_method' => self::SIGMETHOD,
 			'oauth_timestamp' => $this->getTimestamp(),
 			'oauth_token' => $this->config['oauth']['token'],
-			'oauth_version' => self::OVERSION
+			'oauth_version' => self::OVERSION,
+			'format' => 'json'
 		);
 
-		$apiParams = $client->buildParams( $apiParams );
 		$params = array_merge( $apiParams, $oauthParams );
 		ksort( $params );
 

@@ -76,8 +76,8 @@ class HttpClient {
 		curl_setopt( $this->conn, CURLOPT_RETURNTRANSFER, true );
 
 		if ( $header ) {
-			curl_setopt( $ch, CURLOPT_HEADER, 0 );
-			curl_setopt( $ch, CURLOPT_HTTPHEADER, $header );
+			curl_setopt( $this->conn, CURLOPT_HEADER, 0 );
+			curl_setopt( $this->conn, CURLOPT_HTTPHEADER, $header );
 		}
 
 		$response = curl_exec( $this->conn );
@@ -103,11 +103,11 @@ class HttpClient {
 		curl_setopt( $this->conn, CURLOPT_HTTPHEADER, array( 'Expect:' ) );
 
 		if ( $header ) {
-			curl_setopt( $ch, CURLOPT_HEADER, 0 );
+			curl_setopt( $this->conn, CURLOPT_HEADER, 0 );
 			$headers[] = $header;
 		}
 
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+		curl_setopt( $this->conn, CURLOPT_HTTPHEADER, $headers );
 
 		$response = curl_exec( $this->conn );
 
