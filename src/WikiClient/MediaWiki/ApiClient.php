@@ -18,6 +18,11 @@ class ApiClient {
 	protected $user;
 
 	/**
+	 * @var array
+	 */
+	protected $tokens;
+
+	/**
 	 * @param Wiki $wiki
 	 * @param string $cookiejar
 	 */
@@ -60,7 +65,7 @@ class ApiClient {
 			'lgpassword' => $this->user->getPassword()
 		) );
 
-		$response = $this->http->post( $params );
+		$response = $this->post( $params );
 		$result = json_decode( $response, true );
 
 		if ( $result['login']['result'] === 'Success' ) {
@@ -69,14 +74,14 @@ class ApiClient {
 			return true;
 		} elseif ( $result['login']['result'] === 'NeedToken' ) {
 			$params['lgtoken'] = $result['login']['token'];
-			$response = $this->http->post( $params );
+			$response = $this->post( $params );
 
 			$params = $this->buildParams( array(
 				'action' => 'tokens',
 				'type' => 'edit|createaccount'
 			) );
 
-			$response = $this->http->post( $params );
+			$response = $this->post( $params );
 			$this->tokens = $this->getTokens();
 
 			return true;
@@ -89,13 +94,13 @@ class ApiClient {
 	 * @return array
 	 */
 	public function getTokens() {
-		if ( $this->tokens === null ) {
+		if ( !isset( $this->tokens ) ) {
 			$params = $this->buildParams( array(
 				'action' => 'tokens',
 				'type' => 'edit|createaccount'
 			) );
 
-			$result = $this->http->post( $params );
+			$result = $this->post( $params );
 			$result = json_decode( $result, true );
 			$this->tokens = $result['tokens'];
 		}
@@ -104,6 +109,7 @@ class ApiClient {
 	}
 
 	public function doEdit( $params ) {
+		$this->login();
 		$tokens = $this->getTokens();
 
 		$params = $this->buildParams(
