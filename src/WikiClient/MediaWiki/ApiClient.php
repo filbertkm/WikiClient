@@ -126,11 +126,11 @@ class ApiClient {
 		return $this->post( $params );
 	}
 
-	public function get( $params, $header ) {
+	public function get( $params, $header = null ) {
 		return $this->http->get( null, $params, $header );
 	}
 
-	public function post( $params, $header ) {
+	public function post( $params, $header = null ) {
 		return $this->http->post( null, $params, $header );
 	}
 }

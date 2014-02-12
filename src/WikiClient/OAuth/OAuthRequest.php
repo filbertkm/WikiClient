@@ -24,10 +24,10 @@ class OAuthRequest {
 			'oauth_signature_method' => self::SIGMETHOD,
 			'oauth_timestamp' => $this->getTimestamp(),
 			'oauth_token' => $this->config['oauth']['token'],
-			'oauth_version' => self::OVERSION,
-			'format' => 'json'
+			'oauth_version' => self::OVERSION
 		);
 
+		$apiParams['format'] = 'json';
 		$params = array_merge( $apiParams, $oauthParams );
 		ksort( $params );
 
@@ -41,8 +41,8 @@ class OAuthRequest {
 		return $params;
 	}
 
-	public function post( Wiki $wiki, array $apiParams ) {
-		$params = $this->buildParams( $apiParams );
+	public function post( Wiki $wiki, array $params ) {
+		$params['format'] = 'json';
 		$header = array( $this->makeHeader( $params ) );
 
 		$client = new ApiClient( $wiki, '/tmp' );
@@ -51,8 +51,8 @@ class OAuthRequest {
 		return $data;
 	}
 
-	public function get( Wiki $wiki, array $apiParams ) {
-		$params = $this->buildParams( $apiParams );
+	public function get( Wiki $wiki, array $params ) {
+		$params['format'] = 'json';
 		$header = array( $this->makeHeader( $params ) );
 
 		$client = new ApiClient( $wiki, '/tmp' );
@@ -60,18 +60,6 @@ class OAuthRequest {
 
 		return $data;
 	}
-/*
-		$url = $this->config['oauth']['apibaseurl']  . '?' . http_build_query( $apiParams );
-
-		$ch = curl_init();
-		curl_setopt( $ch, CURLOPT_URL, $url );
-		curl_setopt( $ch, CURLOPT_HEADER, 0 );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
-		curl_setopt( $ch, CURLOPT_COOKIEJAR, '/tmp/cookie3333.txt' );
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, $header );
-
-		$data = curl_exec( $ch );
-*/
 
 	protected function generateNonce() {
 		return md5( microtime() . mt_rand() );
@@ -88,7 +76,8 @@ class OAuthRequest {
 			. "&" .urlencode( http_build_query( $params ) );
 	}
 
-	protected function makeHeader( $oauthParams ) {
+	protected function makeHeader( $apiParams ) {
+		$oauthParams = $this->buildParams( $apiParams );
 		$first = true;
 		$out = 'Authorization: OAuth';
 
