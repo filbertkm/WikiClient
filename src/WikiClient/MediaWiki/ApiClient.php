@@ -69,8 +69,7 @@ class ApiClient {
 		$result = json_decode( $response, true );
 
 		if ( $result['login']['result'] === 'Success' ) {
-			$this->editToken = $this->getEditToken();
-
+			$this->tokens = $this->getTokens();
 			return true;
 		} elseif ( $result['login']['result'] === 'NeedToken' ) {
 			$params['lgtoken'] = $result['login']['token'];
@@ -108,7 +107,7 @@ class ApiClient {
 		return $this->tokens;
 	}
 
-	public function doEdit( $params ) {
+	public function buildEditParams( $params ) {
 		$this->login();
 		$tokens = $this->getTokens();
 
@@ -116,13 +115,18 @@ class ApiClient {
 			array_merge(
 				$params,
 				array(
-					'assert' => 'bot',
+//					'assert' => 'bot',
 					'bot' => 1,
 					'token' => $tokens['edittoken']
 				)
 			)
 		);
 
+		return $params;
+	}
+
+	public function doEdit( $params ) {
+		$params = $this->buildEditParams( $params );
 		return $this->post( $params );
 	}
 

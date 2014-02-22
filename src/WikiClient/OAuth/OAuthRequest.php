@@ -13,11 +13,13 @@ class OAuthRequest {
 
 	protected $config;
 
+	private $client;
+
 	public function __construct( array $config ) {
 		$this->config = $config;
 	}
 
-	public function buildParams( array $apiParams ) {
+	public function buildParams( array $apiParams, $method ) {
 		$oauthParams = array(
 			'oauth_consumer_key' => $this->config['oauth']['consumerkey'],
 			'oauth_nonce' => $this->generateNonce(),
@@ -27,11 +29,10 @@ class OAuthRequest {
 			'oauth_version' => self::OVERSION
 		);
 
-		$apiParams['format'] = 'json';
 		$params = array_merge( $apiParams, $oauthParams );
 		ksort( $params );
 
-		$baseString = $this->getBaseString( $params );
+		$baseString = $this->getBaseString( $params, $method );
 
 		$hashkey = $this->config['oauth']['consumersecret'] . '&'
 			. $this->config['oauth']['usersecret'];
@@ -41,24 +42,41 @@ class OAuthRequest {
 		return $params;
 	}
 
-	public function post( Wiki $wiki, array $params ) {
-		$params['format'] = 'json';
-		$header = array( $this->makeHeader( $params ) );
+	public function edit( Wiki $wiki, array $params ) {
+		$client = $this->getClient( $wiki );
+		$params = $client->buildEditParams( $params );
 
-		$client = new ApiClient( $wiki, '/tmp' );
-		$data = $client->post( $params, $header );
+		return $this->post( $wiki, $params );
+	}
+
+	public function post( Wiki $wiki, array $params ) {
+		return $this->request( $wiki, $params, 'post' );
+	}
+
+	public function get( Wiki $wiki, array $params ) {
+		return $this->request( $wiki, $params, 'get' );
+	}
+
+	public function request( Wiki $wiki, array $params, $method ) {
+		$params['format'] = 'json';
+		$header = $this->makeHeader( $params, strtoupper( $method ) );
+		$client = $this->getClient( $wiki );
+
+		if ( $method === 'post' ) {
+			$params = http_build_query( $params );
+		}
+
+		$data = $client->$method( $params, $header );
 
 		return $data;
 	}
 
-	public function get( Wiki $wiki, array $params ) {
-		$params['format'] = 'json';
-		$header = array( $this->makeHeader( $params ) );
+	private function getClient( $wiki ) {
+		if ( !isset( $this->client ) ) {
+			$this->client = new ApiClient( $wiki, '/tmp' );
+		}
 
-		$client = new ApiClient( $wiki, '/tmp' );
-		$data = $client->get( $params, $header );
-
-		return $data;
+		return $this->client;
 	}
 
 	protected function generateNonce() {
@@ -69,15 +87,13 @@ class OAuthRequest {
 		return gmdate( 'U' );
 	}
 
-	protected function getBaseString( $params ) {
-		$method = 'GET';
-
+	protected function getBaseString( $params, $method ) {
 		return "$method&" . urlencode( $this->config['oauth']['apibaseurl'] )
 			. "&" .urlencode( http_build_query( $params ) );
 	}
 
-	protected function makeHeader( $apiParams ) {
-		$oauthParams = $this->buildParams( $apiParams );
+	protected function makeHeader( $apiParams, $method ) {
+		$oauthParams = $this->buildParams( $apiParams, $method );
 		$first = true;
 		$out = 'Authorization: OAuth';
 
