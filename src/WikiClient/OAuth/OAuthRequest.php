@@ -19,13 +19,13 @@ class OAuthRequest {
 		$this->config = $config;
 	}
 
-	public function buildParams( array $apiParams, $method ) {
+	public function buildParams( array $apiParams, $method, $token, $secret ) {
 		$oauthParams = array(
 			'oauth_consumer_key' => $this->config['oauth']['consumerkey'],
 			'oauth_nonce' => $this->generateNonce(),
 			'oauth_signature_method' => self::SIGMETHOD,
 			'oauth_timestamp' => $this->getTimestamp(),
-			'oauth_token' => $this->config['oauth']['token'],
+			'oauth_token' => $token, //$this->config['oauth']['token'],
 			'oauth_version' => self::OVERSION
 		);
 
@@ -33,33 +33,56 @@ class OAuthRequest {
 		ksort( $params );
 
 		$baseString = $this->getBaseString( $params, $method );
+		echo $baseString;
+		echo " *** $secret";
 
 		$hashkey = $this->config['oauth']['consumersecret'] . '&'
-			. $this->config['oauth']['usersecret'];
+			. $secret; //$this->config['oauth']['usersecret'];
 
 		$params['oauth_signature'] = base64_encode( hash_hmac( 'sha1', $baseString, $hashkey, true ) );
 
 		return $params;
 	}
 
-	public function edit( Wiki $wiki, array $params ) {
-		$client = $this->getClient( $wiki );
-		$params = $client->buildEditParams( $params );
+	private function getEditToken( Wiki $wiki, $token, $secret ) {
+		$params = array(
+			'action' => 'tokens',
+			'type' => 'edit'
+		);
 
-		return $this->post( $wiki, $params );
+		$json = $this->request( $wiki, $params, 'post', $token, $secret );
+		$result = json_decode( $json, true );
+
+		return $result['tokens']['edittoken'];
 	}
 
-	public function post( Wiki $wiki, array $params ) {
-		return $this->request( $wiki, $params, 'post' );
+	public function edit( Wiki $wiki, array $params, $token, $secret ) {
+		$editToken = $this->getEditToken( $wiki, $token, $secret );
+
+		$apiParams = array_merge(
+			array(
+				'token' => $editToken,
+				'bot' => 1
+			),
+			$params
+		);
+
+		$result = $this->request( $wiki, $apiParams, 'post', $token, $secret );
+
+		return $result;
 	}
 
-	public function get( Wiki $wiki, array $params ) {
-		return $this->request( $wiki, $params, 'get' );
+	public function post( Wiki $wiki, array $params, $token, $secret ) {
+		return $this->request( $wiki, $params, 'post', $token, $secret );
 	}
 
-	public function request( Wiki $wiki, array $params, $method ) {
+	public function get( Wiki $wiki, array $params, $token, $secret ) {
+		return $this->request( $wiki, $params, 'get', $token, $secret );
+	}
+
+	public function request( Wiki $wiki, array $params, $method, $token, $secret ) {
 		$params['format'] = 'json';
-		$header = $this->makeHeader( $params, strtoupper( $method ) );
+		$header = $this->makeHeader( $params, strtoupper( $method ), $token, $secret );
 		$client = $this->getClient( $wiki );
 
 		if ( $method === 'post' ) {
@@ -92,8 +115,8 @@ class OAuthRequest {
 			. "&" .urlencode( http_build_query( $params ) );
 	}
 
-	protected function makeHeader( $apiParams, $method ) {
-		$oauthParams = $this->buildParams( $apiParams, $method );
+	protected function makeHeader( $apiParams, $method, $token, $secret ) {
+		$oauthParams = $this->buildParams( $apiParams, $method, $token, $secret );
 		$first = true;
 		$out = 'Authorization: OAuth';
 

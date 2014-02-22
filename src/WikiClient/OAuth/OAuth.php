@@ -62,7 +62,7 @@ class OAuth {
 		return json_decode( $results, true );
 	}
 
-	protected function getAuthUrl( $accessToken, $verifier ) {
+	public function getAuthFields( $accessToken, $verifier ) {
 		$nonce = $this->generateNonce();
 		$timestamp = $this->getTimestamp();
 		$signature = $this->generateAuthSignature( $accessToken, $verifier, $nonce, $timestamp );
@@ -79,6 +79,12 @@ class OAuth {
 			'oauth_signature' => $signature,
 			'title' => 'Special:OAuth/token'
 		);
+
+		return $fields;
+	}
+
+	public function getAuthUrl( $accessToken, $verifier ) {
+		$fields = $this->getAuthFields( $accessToken, $verifier );
 
 		$fields_string = '';
 
