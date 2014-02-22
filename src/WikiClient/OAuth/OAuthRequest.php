@@ -33,9 +33,7 @@ class OAuthRequest {
 		ksort( $params );
 
 		$baseString = $this->getBaseString( $params, $method );
-
-		$hashkey = $this->config['oauth']['consumersecret'] . '&'
-			. $secret; //$this->config['oauth']['usersecret'];
+		$hashkey = $this->config['oauth']['consumersecret'] . '&' . $secret;
 
 		$params['oauth_signature'] = base64_encode( hash_hmac( 'sha1', $baseString, $hashkey, true ) );
 
@@ -109,8 +107,23 @@ class OAuthRequest {
 	}
 
 	protected function getBaseString( $params, $method ) {
-		return "$method&" . urlencode( $this->config['oauth']['apibaseurl'] )
-			. "&" .urlencode( http_build_query( $params ) );
+		$string = '';
+
+		foreach( $params as $key => $value ) {
+			$string .= $this->encode( $key ) . '=' . $this->encode( $value ) . "&";
+		}
+
+		$string = rtrim( $string, '&' );
+
+		$baseString = $this->encode( $method )
+			. '&' . $this->encode( $this->config['oauth']['apibaseurl'] )
+			. '&' . $this->encode( $string );
+
+		return $baseString;
+	}
+
+	protected function encode( $string ) {
+		return str_replace( '+', ' ', str_replace( '%7E', '~', rawurlencode( $string ) ) );
 	}
 
 	protected function makeHeader( $apiParams, $method, $token, $secret ) {
