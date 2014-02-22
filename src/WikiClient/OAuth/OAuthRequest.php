@@ -33,8 +33,6 @@ class OAuthRequest {
 		ksort( $params );
 
 		$baseString = $this->getBaseString( $params, $method );
-		echo $baseString;
-		echo " *** $secret";
 
 		$hashkey = $this->config['oauth']['consumersecret'] . '&'
 			. $secret; //$this->config['oauth']['usersecret'];
