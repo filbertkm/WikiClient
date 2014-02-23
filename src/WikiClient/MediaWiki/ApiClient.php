@@ -34,6 +34,7 @@ class ApiClient {
 	public function __construct( Wiki $wiki ) {
 		$this->http = new HttpClient();
 		$this->user = $wiki->getUser();
+		$this->wiki = $wiki;
 	}
 
 	/**
