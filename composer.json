@@ -1,4 +1,4 @@
-i{
+{
 	"name": "wikiclient/wikiclient",
 	"type": "library",
 	"description": "MediaWiki api client",
