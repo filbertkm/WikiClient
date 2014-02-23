@@ -8,6 +8,8 @@ class HttpClient {
 
 	protected $baseUrl;
 
+	protected $userAgent;
+
 	protected $conn;
 
 	/**
@@ -20,23 +22,27 @@ class HttpClient {
 		}
 
 		$this->baseUrl = $baseUrl;
+		$this->userAgent = 'WikiClient framework';
 
 		$this->conn = curl_init();
 		$this->init( $cookieJar );
 	}
 
 	/**
-	 * @var string cookie jar directory
+	 * @param string cookie jar directory
 	 */
 	protected function init( $cookieJar ) {
 		$cookieFile = $this->makeCookieFile();
 
 		curl_setopt( $this->conn, CURLOPT_COOKIEFILE, $cookieFile );
 		curl_setopt( $this->conn, CURLOPT_COOKIEJAR, $cookieJar . '/' . $cookieFile );
-		curl_setopt( $this->conn, CURLOPT_USERAGENT, 'WikiClient framework' );
+		curl_setopt( $this->conn, CURLOPT_USERAGENT, $this->userAgent );
 		curl_setopt( $this->conn, CURLOPT_SSL_VERIFYPEER, false );
 	}
 
+	/**
+	 * @return string
+	 */
 	private function makeCookieFile() {
 		return 'cookie.' . dechex( rand( 0, 99999999 ) ) . '.dat';
 	}
