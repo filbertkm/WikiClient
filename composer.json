@@ -1,4 +1,4 @@
-{
+i{
 	"name": "wikiclient/wikiclient",
 	"type": "library",
 	"description": "MediaWiki api client",
@@ -8,6 +8,7 @@
 	],
 	"require": {
 		"ext-curl": "*",
+		"symfony/browser-kit": "~2.4"
 	},
 	"autoload": {
 		"psr-0": {
