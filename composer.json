@@ -6,6 +6,9 @@
 		"mediawiki",
 		"api"
 	],
+	"require": {
+		"ext-curl": "*",
+	},
 	"autoload": {
 		"psr-0": {
 			"WikiClient\\": "src"
