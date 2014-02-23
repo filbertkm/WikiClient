@@ -4,6 +4,7 @@ namespace WikiClient\MediaWiki;
 
 use RuntimeException;
 use WikiClient\HttpClient;
+use WikiClient\Request;
 
 class ApiClient {
 
@@ -11,6 +12,11 @@ class ApiClient {
 	 * @var HttpClient
 	 */
 	protected $http;
+
+	/**
+	 * @var Wiki
+	 */
+	protected $wiki;
 
 	/**
 	 * @var User
@@ -24,10 +30,9 @@ class ApiClient {
 
 	/**
 	 * @param Wiki $wiki
-	 * @param string $cookiejar
 	 */
-	public function __construct( $wiki, $cookiejar ) {
-		$this->http = new HttpClient( $cookiejar, $wiki->getBaseUrl() );
+	public function __construct( Wiki $wiki ) {
+		$this->http = new HttpClient();
 		$this->user = $wiki->getUser();
 	}
 
@@ -131,10 +136,24 @@ class ApiClient {
 	}
 
 	public function get( $params, $header = null ) {
-		return $this->http->get( null, $params, $header );
+		$request = $this->buildRequest( 'get', $params, $header );
+		return $this->http->doRequest( $request );
 	}
 
 	public function post( $params, $header = null ) {
-		return $this->http->post( null, $params, $header );
+		$request = $this->buildRequest( 'post', $params, $header );
+		return $this->http->doRequest( $request );
 	}
+
+	private function buildRequest( $method, $params, $header = null ) {
+		$request = new Request(
+			$method,
+			$this->wiki->getBaseUrl(),
+			$params,
+			$header
+		);
+
+		return $request;
+	}
+
 }

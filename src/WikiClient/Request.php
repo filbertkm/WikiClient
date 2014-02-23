@@ -19,15 +19,19 @@ class Request {
 	 */
 	protected $params;
 
+	protected $header;
+
 	/**
 	 * @param string $method
 	 * @param string $url
 	 * @param array $params
+	 * @param ? $header
 	 */
-	public function __construct( $method, $url, $params = null ) {
+	public function __construct( $method, $url, $params = null, $header = null ) {
 		$this->method = $method;
 		$this->url = $url;
 		$this->params = $params;
+		$this->header = $header;
 	}
 
 	/**
@@ -49,6 +53,10 @@ class Request {
 	 */
 	public function getParams() {
 		return $this->params;
+	}
+
+	public function getHeader() {
+		return $this->header;
 	}
 
 }

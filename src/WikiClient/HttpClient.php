@@ -2,41 +2,45 @@
 
 namespace WikiClient;
 
-use InvalidArgumentException;
+use UnexpectedValueException;
 
 class HttpClient {
 
-	protected $baseUrl;
-
 	protected $userAgent;
-
-	protected $conn;
 
 	protected $cookieDir;
 
-	/**
-	 * @param string|null $baseUrl
-	 */
-	public function __construct( $baseUrl = null ) {
-		if ( !is_string( $baseUrl ) ) {
-			throw new InvalidArgumentException( '$baseUrl is invalid' );
-		}
-
-		$this->baseUrl = $baseUrl;
+	public function __construct() {
 		$this->userAgent = 'WikiClient framework';
 		$this->cookieDir = '/tmp/';
-
-		$this->conn = curl_init();
-		$this->init();
 	}
 
-	protected function init() {
+	protected function getConn() {
+		$conn = curl_init();
+
 		$cookieFile = $this->getCookieFilename();
 
-		curl_setopt( $this->conn, CURLOPT_COOKIEFILE, $cookieFile );
-		curl_setopt( $this->conn, CURLOPT_COOKIEJAR, $cookieFile );
-		curl_setopt( $this->conn, CURLOPT_USERAGENT, $this->userAgent );
-		curl_setopt( $this->conn, CURLOPT_SSL_VERIFYPEER, false );
+		curl_setopt( $conn, CURLOPT_COOKIEFILE, $cookieFile );
+		curl_setopt( $conn, CURLOPT_COOKIEJAR, $cookieFile );
+		curl_setopt( $conn, CURLOPT_USERAGENT, $this->userAgent );
+		curl_setopt( $conn, CURLOPT_SSL_VERIFYPEER, false );
+
+		return $conn;
+	}
+
+	/**
+	 * @param Request $request
+	 *
+	 * @throws UnexpectedValueException
+	 */
+	public function doRequest( Request $request ) {
+		if ( $request->getMethod() === 'post' ) {
+			$this->post( $request );
+		} elseif ( $request->getMethod() === 'get' ) {
+			$this->get( $request );
+		} else {
+			throw new UnexpectedValueException( 'Unexpected request method' );
+		}
 	}
 
 	/**
@@ -65,77 +69,65 @@ class HttpClient {
 	}
 
 	/**
-	 * @param string|null $url - default is $this->baseUrl
-	 * @param array|null $params
+	 * @param Request $request
 	 * @param ? $header
-	 *
-	 * @throws InvalidArgumentException
 	 */
-	public function get( $url = null, $params = null, $header = null ) {
-		$url = $this->resolveUrl( $url );
+	public function get( Request $request ) {
+		$params = $request->getParams();
+		$url = $request->getUrl();
+		$header = $request->getHeader();
 
 		if ( is_array( $params ) ) {
 			$url = $url . $this->makeQueryString( $params );
 		}
 
-		curl_setopt( $this->conn, CURLOPT_URL, $url );
-		curl_setopt( $this->conn, CURLOPT_HTTPGET, true );
-		curl_setopt( $this->conn, CURLOPT_RETURNTRANSFER, true );
+		$conn = $this->getConn();
+
+		curl_setopt( $conn, CURLOPT_URL, $url );
+		curl_setopt( $conn, CURLOPT_HTTPGET, true );
+		curl_setopt( $conn, CURLOPT_RETURNTRANSFER, true );
 
 		if ( $header ) {
-			curl_setopt( $this->conn, CURLOPT_HEADER, 0 );
-			curl_setopt( $this->conn, CURLOPT_HTTPHEADER, array( $header ) );
+			curl_setopt( $conn, CURLOPT_HEADER, 0 );
+			curl_setopt( $conn, CURLOPT_HTTPHEADER, array( $header ) );
 		}
 
-		$response = curl_exec( $this->conn );
+		$response = curl_exec( $conn );
+
+		curl_close( $conn );
 
 		return $response;
 	}
 
 	/**
-	 * @param string|null $url - default is $this->baseUrl
-	 * @param array|string $params
-	 * @param ? $header
-	 *
-	 * @throws InvalidArgumentException
+	 * @param Request $request
 	 */
-	public function post( $url = null, $params, $header = null ) {
-		$url = $this->resolveUrl( $url );
+	public function post( Request $request ) {
+		$url = $request->getUrl();
+		$params = $request->getParams();
+		$header = $request->getHeader();
+
 		$headers = array( 'Expect:' );
 
-		curl_setopt( $this->conn, CURLOPT_URL, $url );
-		curl_setopt( $this->conn, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $this->conn, CURLOPT_POST, true );
-		curl_setopt( $this->conn, CURLOPT_POSTFIELDS, $params );
+		$conn = $this->getConn();
+
+		curl_setopt( $conn, CURLOPT_URL, $url );
+		curl_setopt( $conn, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $conn, CURLOPT_POST, true );
+		curl_setopt( $conn, CURLOPT_POSTFIELDS, $params );
 
 		if ( $header ) {
-			curl_setopt( $this->conn, CURLOPT_HEADER, 0 );
+			curl_setopt( $conn, CURLOPT_HEADER, 0 );
 			$headers[] = $header;
 		}
 
-		curl_setopt( $this->conn, CURLOPT_HTTPHEADER, $headers );
+		curl_setopt( $conn, CURLOPT_HTTPHEADER, $headers );
 
-		$response = curl_exec( $this->conn );
+		$response = curl_exec( $conn );
+
+		curl_close( $conn );
 
 		return $response;
-	}
-
-	/**
-	 * @param string|null $url
-	 *
-	 * @throws InvalidArgumentException
-	 * @return string
-	 */
-	private function resolveUrl( $url = null ) {
-		if ( $url === null && isset( $this->baseUrl ) ) {
-			$url = $this->baseUrl;
-		}
-
-		if ( !$url || !is_string( $url ) ) {
-			throw new InvalidArgumentException( '$url param is invalid' );
-		}
-
-		return $url;
 	}
 
 }
