@@ -12,30 +12,29 @@ class HttpClient {
 
 	protected $conn;
 
+	protected $cookieDir;
+
 	/**
-	 * @param string cookie jar directory
 	 * @param string|null $baseUrl
 	 */
-	public function __construct( $cookieJar, $baseUrl = null ) {
+	public function __construct( $baseUrl = null ) {
 		if ( !is_string( $baseUrl ) ) {
 			throw new InvalidArgumentException( '$baseUrl is invalid' );
 		}
 
 		$this->baseUrl = $baseUrl;
 		$this->userAgent = 'WikiClient framework';
+		$this->cookieDir = '/tmp/';
 
 		$this->conn = curl_init();
-		$this->init( $cookieJar );
+		$this->init();
 	}
 
-	/**
-	 * @param string cookie jar directory
-	 */
-	protected function init( $cookieJar ) {
-		$cookieFile = $this->makeCookieFile();
+	protected function init() {
+		$cookieFile = $this->getCookieFilename();
 
 		curl_setopt( $this->conn, CURLOPT_COOKIEFILE, $cookieFile );
-		curl_setopt( $this->conn, CURLOPT_COOKIEJAR, $cookieJar . '/' . $cookieFile );
+		curl_setopt( $this->conn, CURLOPT_COOKIEJAR, $cookieFile );
 		curl_setopt( $this->conn, CURLOPT_USERAGENT, $this->userAgent );
 		curl_setopt( $this->conn, CURLOPT_SSL_VERIFYPEER, false );
 	}
@@ -43,8 +42,10 @@ class HttpClient {
 	/**
 	 * @return string
 	 */
-	private function makeCookieFile() {
-		return 'cookie.' . dechex( rand( 0, 99999999 ) ) . '.dat';
+	private function getCookieFilename() {
+		$cookieFile = 'cookie.' . dechex( rand( 0, 99999999 ) ) . '.dat';
+
+		return $this->cookieDir . $cookieFile;
 	}
 
 	/**

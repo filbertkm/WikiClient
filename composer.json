@@ -7,8 +7,7 @@
 		"api"
 	],
 	"require": {
-		"ext-curl": "*",
-		"symfony/browser-kit": "~2.4"
+		"ext-curl": "*"
 	},
 	"autoload": {
 		"psr-0": {
