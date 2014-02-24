@@ -35,12 +35,12 @@ class HttpClient {
 	 */
 	public function doRequest( Request $request ) {
 		if ( $request->getMethod() === 'post' ) {
-			$this->post( $request );
+			return $this->post( $request );
 		} elseif ( $request->getMethod() === 'get' ) {
-			$this->get( $request );
-		} else {
-			throw new UnexpectedValueException( 'Unexpected request method' );
+			return $this->get( $request );
 		}
+
+		throw new UnexpectedValueException( 'Unexpected request method' );
 	}
 
 	/**
@@ -70,7 +70,6 @@ class HttpClient {
 
 	/**
 	 * @param Request $request
-	 * @param ? $header
 	 */
 	public function get( Request $request ) {
 		$params = $request->getParams();
