@@ -6,13 +6,22 @@ use UnexpectedValueException;
 
 class HttpClient {
 
+	/**
+	 * @var string
+	 */
 	protected $userAgent;
 
+	/**
+	 * @var string
+	 */
 	protected $cookieDir;
 
-	public function __construct() {
+	/**
+	 * @param string $cookieDir (optional)
+	 */
+	public function __construct( $cookieDir = null ) {
+		$this->cookieDir = $cookieDir ? $cookieDir : '/tmp/';
 		$this->userAgent = 'WikiClient framework';
-		$this->cookieDir = '/tmp/';
 	}
 
 	protected function getConn() {
