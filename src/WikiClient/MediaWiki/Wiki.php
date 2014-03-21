@@ -8,12 +8,9 @@ class Wiki {
 
 	protected $apiUrl;
 
-	protected $user;
-
-	public function __construct( $siteId, $apiUrl, $user = null ) {
+	public function __construct( $siteId, $apiUrl ) {
 		$this->siteId = $siteId;
 		$this->apiUrl = $apiUrl;
-		$this->user = $user;
 	}
 
 	public function getSiteId() {
@@ -22,10 +19,6 @@ class Wiki {
 
 	public function getApiUrl() {
 		return $this->apiUrl;
-	}
-
-	public function getUser() {
-		return $this->user;
 	}
 
 }
