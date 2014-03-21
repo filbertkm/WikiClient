@@ -102,6 +102,11 @@ class HttpClient {
 
 		$response = curl_exec( $conn );
 
+		if ( $response === false ) {
+			$error = curl_error( $conn );
+			return $error;
+		}
+
 		curl_close( $conn );
 
 		return $response;
@@ -132,6 +137,11 @@ class HttpClient {
 		curl_setopt( $conn, CURLOPT_HTTPHEADER, $headers );
 
 		$response = curl_exec( $conn );
+
+		if ( $response === false ) {
+			$error = curl_error( $conn );
+			return $error;
+		}
 
 		curl_close( $conn );
 
