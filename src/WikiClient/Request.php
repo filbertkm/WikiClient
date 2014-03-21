@@ -28,7 +28,7 @@ class Request {
 	 * @param ? $header
 	 */
 	public function __construct( $method, $url, $params = null, $header = null ) {
-		$this->method = $method;
+		$this->method = strtolower( $method );
 		$this->url = $url;
 		$this->params = $params;
 		$this->header = $header;
