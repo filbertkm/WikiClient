@@ -31,9 +31,9 @@ class ApiClient {
 	/**
 	 * @param Wiki $wiki
 	 */
-	public function __construct( Wiki $wiki ) {
+	public function __construct( Wiki $wiki, User $user ) {
 		$this->http = new HttpClient();
-		$this->user = $wiki->getUser();
+		$this->user = $user;
 		$this->wiki = $wiki;
 	}
 
@@ -51,20 +51,9 @@ class ApiClient {
 	}
 
 	/**
-	 * @param User $user
-	 */
-	public function setUser( User $user ) {
-		$this->user = $user;
-	}
-
-	/**
 	 * @return boolean
 	 */
 	public function login() {
-		if ( !isset( $this->user ) ) {
-			throw new RuntimeException( 'No user is set for the api client' );
-		}
-
 		$params = $this->buildParams( array(
 			'action' => 'login',
 			'lgname' => $this->user->getUserName(),
@@ -113,6 +102,9 @@ class ApiClient {
 		return $this->tokens;
 	}
 
+	/**
+	 * @param array $params
+	 */
 	public function buildEditParams( $params ) {
 		$this->login();
 		$tokens = $this->getTokens();
@@ -121,7 +113,7 @@ class ApiClient {
 			array_merge(
 				$params,
 				array(
-//					'assert' => 'bot',
+					'assert' => 'bot',
 					'bot' => 1,
 					'token' => $tokens['edittoken']
 				)
@@ -131,25 +123,44 @@ class ApiClient {
 		return $params;
 	}
 
+	/**
+	 * @param array $params
+	 */
 	public function doEdit( $params ) {
 		$params = $this->buildEditParams( $params );
 		return $this->post( $params );
 	}
 
+	/**
+	 * @param array $params
+	 */
 	public function get( $params, $header = null ) {
+		$params = $this->buildParams( $params );
 		$request = $this->buildRequest( 'get', $params, $header );
+
 		return $this->http->doRequest( $request );
 	}
 
+	/**
+	 * @param array $params
+	 */
 	public function post( $params, $header = null ) {
+		$params = $this->buildParams( $params );
 		$request = $this->buildRequest( 'post', $params, $header );
+
 		return $this->http->doRequest( $request );
 	}
 
+	/**
+	 * @param string $method
+	 * @param array $params
+	 *
+	 * @return Request
+	 */
 	private function buildRequest( $method, $params, $header = null ) {
 		$request = new Request(
 			$method,
-			$this->wiki->getBaseUrl(),
+			$this->wiki->getApiUrl(),
 			$params,
 			$header
 		);
