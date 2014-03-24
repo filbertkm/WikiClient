@@ -16,6 +16,8 @@ class HttpClient {
 	 */
 	protected $cookieDir;
 
+	protected $conn;
+
 	/**
 	 * @param string $cookieDir (optional)
 	 */
@@ -25,16 +27,20 @@ class HttpClient {
 	}
 
 	protected function getConn() {
-		$conn = curl_init();
+		if ( !isset( $this->conn ) ) {
+			$conn = curl_init();
 
-		$cookieFile = $this->getCookieFilename();
+			$cookieFile = $this->getCookieFilename();
 
-		curl_setopt( $conn, CURLOPT_COOKIEFILE, $cookieFile );
-		curl_setopt( $conn, CURLOPT_COOKIEJAR, $cookieFile );
-		curl_setopt( $conn, CURLOPT_USERAGENT, $this->userAgent );
-		curl_setopt( $conn, CURLOPT_SSL_VERIFYPEER, false );
+			curl_setopt( $conn, CURLOPT_COOKIEFILE, $cookieFile );
+			curl_setopt( $conn, CURLOPT_COOKIEJAR, $cookieFile );
+			curl_setopt( $conn, CURLOPT_USERAGENT, $this->userAgent );
+			curl_setopt( $conn, CURLOPT_SSL_VERIFYPEER, false );
 
-		return $conn;
+			$this->conn = $conn;
+		}
+
+		return $this->conn;
 	}
 
 	/**
@@ -107,7 +113,7 @@ class HttpClient {
 			return $error;
 		}
 
-		curl_close( $conn );
+//		curl_close( $conn );
 
 		return $response;
 	}
@@ -143,7 +149,7 @@ class HttpClient {
 			return $error;
 		}
 
-		curl_close( $conn );
+//		curl_close( $conn );
 
 		return $response;
 	}
