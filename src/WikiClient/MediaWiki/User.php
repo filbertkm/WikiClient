@@ -8,9 +8,12 @@ class User {
 
 	protected $password;
 
-	public function __construct( $username, $password ) {
+	protected $siteIds;
+
+	public function __construct( $username, $password, $siteIds ) {
 		$this->username = $username;
 		$this->password = $password;
+		$this->siteIds = $siteIds;
 	}
 
 	public function getUsername() {
@@ -19,6 +22,10 @@ class User {
 
 	public function getPassword() {
 		return $this->password;
+	}
+
+	public function getSiteIds() {
+		return $this->siteIds;
 	}
 
 }

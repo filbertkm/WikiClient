@@ -2,19 +2,26 @@
 
 namespace WikiClient\MediaWiki;
 
+use Exception;
+
 class WikiFactory {
 
-	public static function newWiki( $config, $siteId, $user = null ) {
-		$username = $user ? $user->getUsername() : $config[$siteId]['user']['username'];
-		$password = $user ? $user->getApiPassword() : $config[$siteId]['user']['password'];
+	private $wikis;
 
-		$user = new User( $username, $password );
+	public function __construct( array $wikis ) {
+		$this->wikis = $wikis;
+	}
 
-		return new Wiki(
-			$siteId,
-			$config[$siteId]['baseurl'],
-			$user
-		);
+	public function newWiki( $siteId ) {
+		if ( !array_key_exists( $siteId, $this->wikis ) ) {
+			throw new Exception( "Site $siteId not found in config." );
+		}
+
+		$config = $this->wikis[$siteId];
+
+		$wiki = new Wiki( $siteId, $config['api'] );
+
+		return $wiki;
 	}
 
 }
