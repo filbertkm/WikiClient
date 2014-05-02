@@ -37,6 +37,10 @@ class ApiClient {
 		$this->wiki = $wiki;
 	}
 
+	public function getWiki() {
+		return $this->wiki;
+	}
+
 	/**
 	 * @param array $params
 	 *
