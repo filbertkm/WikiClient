@@ -2,6 +2,7 @@
 
 namespace WikiClient;
 
+use InvalidArgumentException;
 use UnexpectedValueException;
 
 class HttpClient {
@@ -71,16 +72,20 @@ class HttpClient {
 	 * @param array $params
 	 *
 	 * @return string
+	 * @throws InvalidArgumentException
 	 */
 	public function makeQueryString( array $params ) {
-		$queryString = '';
+		$pairs = array();
 
 		foreach( $params as $key => $value ) {
-			$queryString .= ( $queryString === '' ) ? '?' : '&';
-			$queryString .= urlencode( $key ) . '=' . urlencode( $value );
+			if ( !is_string( $key ) || !is_string( $value ) ) {
+				throw new InvalidArgumentException( 'Query string $params are invalid.' );
+			}
+
+			$pairs[] = urlencode( $key ) . '=' . urlencode( $value );
 		}
 
-		return $queryString;
+		return implode( '&', $pairs );
 	}
 
 	/**
@@ -92,7 +97,7 @@ class HttpClient {
 		$header = $request->getHeader();
 
 		if ( is_array( $params ) ) {
-			$url = $url . $this->makeQueryString( $params );
+			$url = $url . '? ' . $this->makeQueryString( $params );
 		}
 
 		$conn = $this->getConn();
@@ -123,7 +128,7 @@ class HttpClient {
 	 */
 	public function post( Request $request ) {
 		$url = $request->getUrl();
-		$params = $request->getParams();
+		$params = $this->makeQueryString( $request->getParams() );
 		$header = $request->getHeader();
 
 		$headers = array( 'Expect:' );
