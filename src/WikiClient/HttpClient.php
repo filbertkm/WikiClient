@@ -78,7 +78,7 @@ class HttpClient {
 		$pairs = array();
 
 		foreach( $params as $key => $value ) {
-			if ( !is_string( $key ) || !is_string( $value ) ) {
+			if ( !is_scalar( $key ) || !is_scalar( $value ) ) {
 				throw new InvalidArgumentException( 'Query string $params are invalid.' );
 			}
 
