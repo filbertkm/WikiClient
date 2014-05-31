@@ -97,7 +97,7 @@ class HttpClient {
 		$header = $request->getHeader();
 
 		if ( is_array( $params ) ) {
-			$url = $url . '? ' . $this->makeQueryString( $params );
+			$url = $url . '?' . $this->makeQueryString( $params );
 		}
 
 		$conn = $this->getConn();
