@@ -109,7 +109,7 @@ class ApiClient {
 	/**
 	 * @param array $params
 	 */
-	public function buildEditParams( $params ) {
+	private function buildBotParams( $params ) {
 		$this->login();
 		$tokens = $this->getTokens();
 
@@ -129,9 +129,17 @@ class ApiClient {
 
 	/**
 	 * @param array $params
+	 * @deprecated
 	 */
 	public function doEdit( $params ) {
-		$params = $this->buildEditParams( $params );
+		return $this->doPost( $params );
+	}
+
+	/**
+	 * @param array $params
+	 */
+	public function doPost( $params ) {
+		$params = $this->buildBotParams( $params );
 		return $this->post( $params );
 	}
 
