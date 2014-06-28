@@ -29,6 +29,11 @@ class ApiClient {
 	protected $tokens;
 
 	/**
+	 * @var array
+	 */
+	protected $calls = array();
+
+	/**
 	 * @param Wiki $wiki
 	 */
 	public function __construct( Wiki $wiki, User $user ) {
@@ -150,6 +155,8 @@ class ApiClient {
 		$params = $this->buildParams( $params );
 		$request = $this->buildRequest( 'get', $params, $header );
 
+		$this->calls[] = $request;
+
 		return $this->http->doRequest( $request );
 	}
 
@@ -159,6 +166,8 @@ class ApiClient {
 	public function post( $params, $header = null ) {
 		$params = $this->buildParams( $params );
 		$request = $this->buildRequest( 'post', $params, $header );
+
+		$this->calls[] = $request;
 
 		return $this->http->doRequest( $request );
 	}
@@ -178,6 +187,10 @@ class ApiClient {
 		);
 
 		return $request;
+	}
+
+	public function getCalls() {
+		return $this->calls;
 	}
 
 }
