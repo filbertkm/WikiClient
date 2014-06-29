@@ -46,6 +46,14 @@ class ApiClient {
 		return $this->wiki;
 	}
 
+	public function getUser() {
+		return $this->user;
+	}
+
+	public function setUser( User $user ) {
+		$this->user = $user;
+	}
+
 	/**
 	 * @param array $params
 	 *
