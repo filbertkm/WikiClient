@@ -92,7 +92,15 @@ class OAuthRequest {
 
 	private function getClient( $wiki ) {
 		if ( !isset( $this->client ) ) {
-			$this->client = new ApiClient( $wiki, '/tmp' );
+			$userInfo = $wikis[$siteId]['user'];
+
+	        $user = new WikiClient\MediaWiki\User(
+	            $userInfo['username'],
+	            $userInfo['password'],
+	            $wikis[$siteId]
+	        );
+
+			$this->client = new WikiClient\MediaWiki\ApiClient( $wiki, $user );
 		}
 
 		return $this->client;

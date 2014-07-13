@@ -36,7 +36,7 @@ class ApiClient {
 	/**
 	 * @param Wiki $wiki
 	 */
-	public function __construct( Wiki $wiki, User $user ) {
+	public function __construct( Wiki $wiki, User $user = null ) {
 		$this->http = new HttpClient();
 		$this->user = $user;
 		$this->wiki = $wiki;
@@ -119,12 +119,19 @@ class ApiClient {
 		return $this->tokens;
 	}
 
+	public function getEditToken() {
+		$tokens = $this->getTokens();
+
+		return $tokens['edittoken'];
+	}
+
 	/**
 	 * @param array $params
 	 */
 	private function buildBotParams( $params ) {
-		$this->login();
-		$tokens = $this->getTokens();
+		if ( $this->user !== null ) {
+			$this->login();
+		}
 
 		$params = $this->buildParams(
 			array_merge(
@@ -132,7 +139,7 @@ class ApiClient {
 				array(
 					'assert' => 'bot',
 					'bot' => 1,
-					'token' => $tokens['edittoken']
+					'token' => $this->getEditToken()
 				)
 			)
 		);
@@ -144,16 +151,16 @@ class ApiClient {
 	 * @param array $params
 	 * @deprecated
 	 */
-	public function doEdit( $params ) {
-		return $this->doPost( $params );
+	public function doEdit( $params, $header = null ) {
+		return $this->doPost( $params, $header );
 	}
 
 	/**
 	 * @param array $params
 	 */
-	public function doPost( $params ) {
+	public function doPost( $params, $header = null ) {
 		$params = $this->buildBotParams( $params );
-		return $this->post( $params );
+		return $this->post( $params, $header );
 	}
 
 	/**
