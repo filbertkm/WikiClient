@@ -28,6 +28,10 @@ class ApiClient {
 	 */
 	protected $tokens;
 
+	protected $loggedIn = false;
+
+	protected $isBot = true;
+
 	/**
 	 * @var array
 	 */
@@ -52,6 +56,10 @@ class ApiClient {
 
 	public function setUser( User $user ) {
 		$this->user = $user;
+	}
+
+	public function setIsBot( $isBot ) {
+		$this->isBot = $isBot;
 	}
 
 	/**
@@ -82,6 +90,7 @@ class ApiClient {
 
 		if ( $result['login']['result'] === 'Success' ) {
 			$this->tokens = $this->getTokens();
+			$this->loggedIn = true;
 			return true;
 		} elseif ( $result['login']['result'] === 'NeedToken' ) {
 			$params['lgtoken'] = $result['login']['token'];
@@ -128,10 +137,12 @@ class ApiClient {
 	/**
 	 * @param array $params
 	 */
-	private function buildBotParams( $params ) {
-		if ( $this->user !== null ) {
+	private function buildEditParams( $params ) {
+		if ( !$this->loggedIn ) {
 			$this->login();
 		}
+
+		$tokens = $this->getTokens();
 
 		$params = $this->buildParams(
 			array_merge(
@@ -143,6 +154,16 @@ class ApiClient {
 				)
 			)
 		);
+
+		if ( $this->isBot ) {
+			$params = array_merge(
+				$params,
+				array(
+					'assert' => 'bot',
+					'bot' => 1
+				)
+			);
+		}
 
 		return $params;
 	}
@@ -158,9 +179,9 @@ class ApiClient {
 	/**
 	 * @param array $params
 	 */
-	public function doPost( $params, $header = null ) {
-		$params = $this->buildBotParams( $params );
-		return $this->post( $params, $header );
+	public function doPost( $params ) {
+		$params = $this->buildEditParams( $params );
+		return $this->post( $params );
 	}
 
 	/**
