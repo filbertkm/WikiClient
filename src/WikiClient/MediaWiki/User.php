@@ -10,7 +10,7 @@ class User {
 
 	protected $siteIds;
 
-	public function __construct( $username, $password, $siteIds ) {
+	public function __construct( $username, $password, $siteIds = array() ) {
 		$this->username = $username;
 		$this->password = $password;
 		$this->siteIds = $siteIds;
