@@ -7,20 +7,27 @@ class User {
 	/**
 	 * @var string
 	 */
-	protected $username;
+	private $username;
 
 	/**
 	 * @var string
 	 */
-	protected $password;
+	private $password;
+
+	/**
+	 * @var boolean
+	 */
+	private $isBot;
 
 	/**
 	 * @param string $username
 	 * @param string $password
+	 * @param boolean $isBot
 	 */
-	public function __construct( $username, $password ) {
+	public function __construct( $username, $password, $isBot ) {
 		$this->username = $username;
 		$this->password = $password;
+		$this->isBot = $isBot;
 	}
 
 	/**
@@ -35,6 +42,13 @@ class User {
 	 */
 	public function getPassword() {
 		return $this->password;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function isBot() {
+		return $this->isBot;
 	}
 
 }

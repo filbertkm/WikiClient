@@ -31,8 +31,6 @@ class ApiClient {
 
 	protected $loggedIn = false;
 
-	protected $isBot = false;
-
 	/**
 	 * @var array
 	 */
@@ -45,10 +43,6 @@ class ApiClient {
 		$this->http = new HttpClient();
 		$this->user = $user;
 		$this->site = $site;
-	}
-
-	public function setIsBot( $isBot ) {
-		$this->isBot = $isBot;
 	}
 
 	/**
@@ -142,7 +136,7 @@ class ApiClient {
 			)
 		);
 
-		if ( $this->isBot ) {
+		if ( $this->user->isBot() ) {
 			$params = array_merge(
 				$params,
 				array(

@@ -28,7 +28,7 @@ class UserFactory {
 
 		$user = $this->config[$group];
 
-		return new User( $user['id'], $user['password'] );
+		return new User( $user['id'], $user['password'], $user['bot'] );
 	}
 
 }
