@@ -4,28 +4,37 @@ namespace WikiClient\MediaWiki;
 
 class User {
 
+	/**
+	 * @var string
+	 */
 	protected $username;
 
+	/**
+	 * @var string
+	 */
 	protected $password;
 
-	protected $siteIds;
-
-	public function __construct( $username, $password, $siteIds = array() ) {
+	/**
+	 * @param string $username
+	 * @param string $password
+	 */
+	public function __construct( $username, $password ) {
 		$this->username = $username;
 		$this->password = $password;
-		$this->siteIds = $siteIds;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getUsername() {
 		return $this->username;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getPassword() {
 		return $this->password;
-	}
-
-	public function getSiteIds() {
-		return $this->siteIds;
 	}
 
 }

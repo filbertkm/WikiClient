@@ -2,26 +2,33 @@
 
 namespace WikiClient\MediaWiki;
 
-use Exception;
-
 class UserFactory {
 
-	private $users;
+	/**
+	 * @var array
+	 */
+	private $config;
 
-	public function __construct( array $users ) {
-		$this->users = $users;
+	/**
+	 * @param array $config
+	 */
+	public function __construct( array $config ) {
+		$this->config = $config;
 	}
 
-	public function newUser( $username ) {
-		if ( !array_key_exists( $username, $this->users ) ) {
-			throw new Exception( "User $username not found in config." );
+	/**
+	 * @param string $group
+	 *
+	 * @return User
+	 */
+	public function getUserForGroup( $group ) {
+		if ( !array_key_exists( $group, $this->config ) ) {
+			throw new InvalidArgumentException( 'Unknown group: ' . $group );
 		}
 
-		$info = $this->users[$username];
+		$user = $this->config[$group];
 
-		$user = new User( $info['username'], $info['password'], $info['wikis'] );
-
-		return $user;
+		return new User( $user['id'], $user['password'] );
 	}
 
 }

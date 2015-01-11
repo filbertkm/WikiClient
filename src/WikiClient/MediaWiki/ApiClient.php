@@ -3,6 +3,7 @@
 namespace WikiClient\MediaWiki;
 
 use RuntimeException;
+use Wikibot\Sites\Site;
 use WikiClient\HttpClient;
 use WikiClient\Request;
 
@@ -14,9 +15,9 @@ class ApiClient {
 	protected $http;
 
 	/**
-	 * @var Wiki
+	 * @var Site
 	 */
-	protected $wiki;
+	protected $site;
 
 	/**
 	 * @var User
@@ -30,7 +31,7 @@ class ApiClient {
 
 	protected $loggedIn = false;
 
-	protected $isBot = true;
+	protected $isBot = false;
 
 	/**
 	 * @var array
@@ -38,24 +39,12 @@ class ApiClient {
 	protected $calls = array();
 
 	/**
-	 * @param Wiki $wiki
+	 * @param Site $site
 	 */
-	public function __construct( Wiki $wiki, User $user = null ) {
+	public function __construct( Site $site, User $user ) {
 		$this->http = new HttpClient();
 		$this->user = $user;
-		$this->wiki = $wiki;
-	}
-
-	public function getWiki() {
-		return $this->wiki;
-	}
-
-	public function getUser() {
-		return $this->user;
-	}
-
-	public function setUser( User $user ) {
-		$this->user = $user;
+		$this->site = $site;
 	}
 
 	public function setIsBot( $isBot ) {
@@ -148,8 +137,6 @@ class ApiClient {
 			array_merge(
 				$params,
 				array(
-					'assert' => 'bot',
-					'bot' => 1,
 					'token' => $this->getEditToken()
 				)
 			)
@@ -217,7 +204,7 @@ class ApiClient {
 	private function buildRequest( $method, $params, $header = null ) {
 		$request = new Request(
 			$method,
-			$this->wiki->getApiUrl(),
+			$this->site->getApiUrl(),
 			$params,
 			$header
 		);
